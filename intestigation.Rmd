@@ -92,11 +92,9 @@ laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
 train_data <- training(laptop_split)
 test_data  <- testing(laptop_split)
 
-laptop_fit <- logistic_reg() %>%
-  set_engine("glm") %>%
-  fit(Price ~ Ram + Weight + Price + TouchScreen + Ips + Ppi +
-        HDD + SSD + Company_sort + TypeName_sort + Cpu_brand_sort + 
-        Gpu_brand_sort + Os_sort, data = train_data, family = "binomial")
+laptop_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ Os_sort + Gpu_brand_sort + Cpu_brand_sort + TypeName_sort + Company_sort + SSD + HDD + Ppi + Ips + TouchScreen + Weight + Ram, data = train_data, family = "binomial")
 
 
 ```
