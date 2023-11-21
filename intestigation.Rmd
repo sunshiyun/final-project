@@ -21,12 +21,70 @@ library(openintro)
 library(readr)
 laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
 glimpse(laptop_data_cleaned)
+
+## Data pre-processing
 # Test the number of NA in data set
 colSums(is.na(laptop_data_cleaned))
 # Keep the data for sum of HDD and SSD greater than 128
 laptop_data_cleaned <- filter(laptop_data_cleaned, HDD+SSD >= 128)
+# Count different texts for different variables
+count(laptop_data_cleaned, Company)
+count(laptop_data_cleaned, TypeName)
+count(laptop_data_cleaned, Cpu_brand)
+count(laptop_data_cleaned, Gpu_brand)
+count(laptop_data_cleaned, Os)
+# Change type of data from characters to doubles by 'case_when'
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Company_sort = case_when(
+    Company == "Acer" ~ 1,
+    Company == "Apple" ~ 2,
+    Company == "Asus" ~ 3,
+    Company == "Dell" ~ 4,
+    Company == "Fujitsu" ~ 5,
+    Company == "Google" ~ 6,
+    Company == "HP" ~ 7,
+    Company == "Huawei" ~ 8,
+    Company == "LG" ~ 9,
+    Company == "Lenovo" ~ 10,
+    Company == "MSI" ~ 11,
+    Company == "Microsoft" ~ 12,
+    Company == "Razer" ~ 13,
+    Company == "Samsung" ~ 14,
+    Company == "Toshiba" ~ 15,
+    Company == "Xiaomi" ~ 16
+  ))
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(TypeName_sort = case_when(
+    TypeName == "2 in 1 Convertible" ~ 1,
+    TypeName == "Gaming" ~ 2,
+    TypeName == "Netbook" ~ 3,
+    TypeName == "Notebook" ~ 4,
+    TypeName == "Ultrabook" ~ 5,
+    TypeName == "Workstation" ~ 6
+  ))
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Cpu_brand_sort = case_when(
+    Cpu_brand == "AMD Processor" ~ 1,
+    Cpu_brand == "Intel Core i3" ~ 3,
+    Cpu_brand == "Intel Core i5" ~ 5,
+    Cpu_brand == "Intel Core i7" ~ 7,
+    Cpu_brand == "Other Intel Processor" ~ 0
+  ))
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Gpu_brand_sort = case_when(
+    Gpu_brand == "AMD" ~ 1,
+    Gpu_brand == "Intel" ~ 2,
+    Gpu_brand == "Nvidia" ~ 3,
+  ))
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Os_sort = case_when(
+    Os == "Mac" ~ 1,
+    Os == "Windows" ~ 2,
+    Os == "Others" ~ 0,
+  ))
+
+## Split training and testing data sets
 # Fix random numbers by setting the seed 
-# Enables analysis to be reproducible when random numbers are used 
 set.seed(1365)
 # Put 80% of the data into the training set 
 laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
@@ -36,8 +94,9 @@ test_data  <- testing(laptop_split)
 
 laptop_fit <- logistic_reg() %>%
   set_engine("glm") %>%
-  fit(Price ~ ., data = laptop_data_cleaned, family = "binomial")
-
+  fit(Price ~ Ram + Weight + Price + TouchScreen + Ips + Ppi +
+        HDD + SSD + Company_sort + TypeName_sort + Cpu_brand_sort + 
+        Gpu_brand_sort + Os_sort, data = train_data, family = "binomial")
 
 
 ```
