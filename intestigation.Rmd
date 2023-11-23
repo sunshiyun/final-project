@@ -95,7 +95,8 @@ test_data  <- testing(laptop_split)
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ Os_sort + Gpu_brand_sort + Cpu_brand_sort + TypeName_sort + Company_sort + SSD + HDD + Ppi + Ips + TouchScreen + Weight + Ram, data = train_data, family = "binomial")
-
+tidy(laptop_fit)
+glance(laptop_fit)$adj.r.squared
 
 ```
 
