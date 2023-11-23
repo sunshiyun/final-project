@@ -35,24 +35,7 @@ count(laptop_data_cleaned, Gpu_brand)
 count(laptop_data_cleaned, Os)
 # Change type of data from characters to doubles by 'case_when'
 laptop_data_cleaned <- laptop_data_cleaned %>% 
-  mutate(Company_sort = case_when(
-    Company == "Acer" ~ 1,
-    Company == "Apple" ~ 2,
-    Company == "Asus" ~ 3,
-    Company == "Dell" ~ 4,
-    Company == "Fujitsu" ~ 5,
-    Company == "Google" ~ 6,
-    Company == "HP" ~ 7,
-    Company == "Huawei" ~ 8,
-    Company == "LG" ~ 9,
-    Company == "Lenovo" ~ 10,
-    Company == "MSI" ~ 11,
-    Company == "Microsoft" ~ 12,
-    Company == "Razer" ~ 13,
-    Company == "Samsung" ~ 14,
-    Company == "Toshiba" ~ 15,
-    Company == "Xiaomi" ~ 16
-  ))
+  mutate(Company = as.factor(Company))
 laptop_data_cleaned <- laptop_data_cleaned %>% 
   mutate(TypeName_sort = case_when(
     TypeName == "2 in 1 Convertible" ~ 1,
@@ -94,7 +77,10 @@ test_data  <- testing(laptop_split)
 
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(Price ~ Os_sort + Gpu_brand_sort + Cpu_brand_sort + TypeName_sort + Company_sort + SSD + HDD + Ppi + Ips + TouchScreen + Weight + Ram, data = train_data, family = "binomial")
+  fit(Price ~ Company + SSD + HDD + Ppi + Ips + TouchScreen + Weight + Ram, data = train_data)
+
+
+
 tidy(laptop_fit)
 glance(laptop_fit)$adj.r.squared 
 
