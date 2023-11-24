@@ -33,38 +33,15 @@ count(laptop_data_cleaned, TypeName)
 count(laptop_data_cleaned, Cpu_brand)
 count(laptop_data_cleaned, Gpu_brand)
 count(laptop_data_cleaned, Os)
-# Change type of data from characters to doubles by 'case_when'
+# Change type of data from characters to doubles by 'as.factor'
+# Give them a 'weight'
 laptop_data_cleaned <- laptop_data_cleaned %>% 
-  mutate(Company = as.factor(Company))
-laptop_data_cleaned <- laptop_data_cleaned %>% 
-  mutate(TypeName_sort = case_when(
-    TypeName == "2 in 1 Convertible" ~ 1,
-    TypeName == "Gaming" ~ 2,
-    TypeName == "Netbook" ~ 3,
-    TypeName == "Notebook" ~ 4,
-    TypeName == "Ultrabook" ~ 5,
-    TypeName == "Workstation" ~ 6
-  ))
-laptop_data_cleaned <- laptop_data_cleaned %>% 
-  mutate(Cpu_brand_sort = case_when(
-    Cpu_brand == "AMD Processor" ~ 1,
-    Cpu_brand == "Intel Core i3" ~ 3,
-    Cpu_brand == "Intel Core i5" ~ 5,
-    Cpu_brand == "Intel Core i7" ~ 7,
-    Cpu_brand == "Other Intel Processor" ~ 0
-  ))
-laptop_data_cleaned <- laptop_data_cleaned %>% 
-  mutate(Gpu_brand_sort = case_when(
-    Gpu_brand == "AMD" ~ 1,
-    Gpu_brand == "Intel" ~ 2,
-    Gpu_brand == "Nvidia" ~ 3,
-  ))
-laptop_data_cleaned <- laptop_data_cleaned %>% 
-  mutate(Os_sort = case_when(
-    Os == "Mac" ~ 1,
-    Os == "Windows" ~ 2,
-    Os == "Others" ~ 0,
-  ))
+  mutate(Company = as.factor(Company),
+         TypeName = as.factor(TypeName),
+         Cpu_brand = as.factor(Cpu_brand),
+         Gpu_brand = as.factor(Gpu_brand),
+         Os = as.factor(Os)
+         )
 
 ## Split training and testing data sets
 # Fix random numbers by setting the seed 
@@ -77,7 +54,7 @@ test_data  <- testing(laptop_split)
 
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(Price ~ Company + SSD + HDD + Ppi + Ips + TouchScreen + Weight + Ram, data = train_data)
+  fit(Price ~ ., data = train_data)
 
 
 
