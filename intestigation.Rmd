@@ -280,64 +280,6 @@ ggplot(data = laptop_data_cleaned,
     title = "Price vs. Os"
   ) +
   theme_bw()
-  
-  
-  
-# Correlation-test
-# Person correlation coefficient (linear relationship between continuous variables)
-cor_Company <- cor(laptop_data_cleaned$Price, 
-                   laptop_data_cleaned$Company, 
-                   method = "pearson")
-
-cor_TypeName <- cor(laptop_data_cleaned$Price, 
-                    laptop_data_cleaned$TypeName, 
-                    method = "pearson")
-
-cor_Ram <- cor(laptop_data_cleaned$Price, 
-               laptop_data_cleaned$Ram, 
-              method = "pearson")
-
-cor_Weight <- cor(laptop_data_cleaned$Price, 
-                  laptop_data_cleaned$Weight, 
-                  method = "pearson")
-
-cor_TouchScreen <- cor(laptop_data_cleaned$Price, 
-                       laptop_data_cleaned$TouchScreen, 
-                       method = "pearson")
-
-cor_Ips <- cor(laptop_data_cleaned$Price, 
-               laptop_data_cleaned$Ips, 
-               method = "pearson")
-
-cor_Ppi <- cor(laptop_data_cleaned$Price, 
-               laptop_data_cleaned$Ppi, 
-               method = "pearson")
-
-cor_Cpu_brand <- cor(laptop_data_cleaned$Price, 
-                     laptop_data_cleaned$Cpu_brand, 
-                     method = "pearson")
-
-cor_HDD <- cor(laptop_data_cleaned$Price, 
-               laptop_data_cleaned$HDD, 
-               method = "pearson")
-
-cor_SSD <- cor(laptop_data_cleaned$Price, 
-               laptop_data_cleaned$SSD, 
-               method = "pearson") 
-
-cor_Gpu_brand <- cor(laptop_data_cleaned$Price, 
-                     laptop_data_cleaned$Gpu_brand, 
-                     method = "pearson")
-
-cor_Os <- cor(laptop_data_cleaned$Price, 
-              laptop_data_cleaned$Os, 
-              method = "pearson")
-
-cor_Storage_space <- cor(laptop_data_cleaned$Price,
-                         laptop_data_cleaned$Storage_space,
-                         method = "person")
-
-
 
 
 
