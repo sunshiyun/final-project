@@ -22,19 +22,27 @@ library(readr)
 laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
 glimpse(laptop_data_cleaned)
 
-## Data pre-processing
+## PART1 >>> Data pre-processing
 # Test the number of NA in data set
 colSums(is.na(laptop_data_cleaned))
 # Keep the data for sum of HDD and SSD greater than 128
-laptop_data_cleaned <- filter(laptop_data_cleaned, HDD+SSD >= 128)
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Storage_space = HDD+SSD)
+laptop_data_cleaned <- filter(laptop_data_cleaned, Storage_space >= 128)
 # Count different texts for different variables
-count(laptop_data_cleaned, Company)
-count(laptop_data_cleaned, TypeName)
-count(laptop_data_cleaned, Cpu_brand)
-count(laptop_data_cleaned, Gpu_brand)
-count(laptop_data_cleaned, Os)
-# Change type of data from characters to doubles by 'as.factor'
-# Give them a 'weight'
+laptop_data_cleaned %>%
+  count(Company)
+laptop_data_cleaned %>%
+  count(TypeName)
+laptop_data_cleaned %>%
+  count(Cpu_brand)
+laptop_data_cleaned %>%
+  count(Gpu_brand)
+laptop_data_cleaned %>%
+  count(Os)
+# Combine variables with few data
+
+# Change type of character data by factor them
 laptop_data_cleaned <- laptop_data_cleaned %>% 
   mutate(Company = as.factor(Company),
          TypeName = as.factor(TypeName),
@@ -42,6 +50,268 @@ laptop_data_cleaned <- laptop_data_cleaned %>%
          Gpu_brand = as.factor(Gpu_brand),
          Os = as.factor(Os)
          )
+
+
+
+## PART 2 >>> Visualization for every variables
+# Company
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Company)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Company",
+    title = "Price vs. Comapny"
+  ) +
+  theme_bw()
+
+#TypeName
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price,
+                     x = TypeName)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "TypeName",
+    title = "Price vs. TypeName"
+  ) +
+  theme_bw()
+
+# RAM
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = RAM, 
+         y = Price,
+         group_by = as.factor(RAM)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "RAM",
+    y = "Price",
+    title = "Price vs. RAM"
+  ) +
+  theme_bw()
+
+# Weight
+ggplot(data = laptop_data_cleaned,
+       mapping = aes(
+         x = Weight, 
+         y = Price)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE) + 
+  labs(x = "Weight", 
+       y = "Price", 
+       title = "Price vs weight") +
+  theme_bw()
+
+# TouchScreen
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = TouchScreen, 
+         y = Price,
+         group_by = as.factor(TouchScreen)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "TouchScreen",
+    y = "Price",
+    title = "Price vs. TouchScreen"
+  ) +
+  theme_bw()
+
+# Ips
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = Ips, 
+         y = Price,
+         group_by = as.factor(Ips)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "Ips",
+    y = "Price",
+    title = "Price vs. Ips"
+  ) +
+  theme_bw()
+
+#Ppi
+ggplot(data = laptop_data_cleaned,
+       mapping = aes(
+         x = Ppi, 
+         y = Price)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE) + 
+  labs(
+    x = "Ppi", 
+    y = "Price", 
+    title = "Price vs. Ppi") +
+  theme_bw()
+
+# Cpu_brand
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Cpu_brand)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Cpu_brand",
+    title = "Price vs. Cpu_brand"
+  ) +
+  theme_bw()
+
+# HDD
+laptop_data_cleaned %>% 
+  ggplot(
+       mapping = aes(
+         x = HDD,
+         y = Price, 
+         group_by = as.factor(HDD)
+       ))+
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")+
+  labs(
+    x = "HDD",
+    y = 'Price',
+    title = "Price vs. HDD")
+  theme_bw()
+
+# SSD
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = SSD, 
+         y = Price,
+         group_by = as.factor(SSD)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red") +
+  labs(
+    x = "SSD",
+    y = "Price",
+    title = "Price vs. SSD"
+  ) +
+  theme_bw()
+
+# Storage_space
+laptop_data_cleaned %>% 
+  ggplot(
+       mapping = aes(
+         x = Storage_space,
+         y = Price, 
+         group_by = as.factor(Storage_space)
+       ))+
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")+
+  labs(
+    x = "storage_space",
+    y = 'Price',
+    title = "Price vs. storage_space")
+  theme_bw()
+
+# Gpu_brand
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Gpu_brand)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Gpu_brand",
+    title = "Price vs. Gpu_brand"
+  ) +
+  theme_bw()
+  
+# Os
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Os)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Os",
+    title = "Price vs. Os"
+  ) +
+  theme_bw()
+  
+  
+  
+# Correlation-test
+# Person correlation coefficient (linear relationship between continuous variables)
+cor_Company <- cor(laptop_data_cleaned$price, 
+                   laptop_data_cleaned$Company, 
+                   method = "pearson")
+
+cor_TypeName <- cor(laptop_data_cleaned$price, 
+                    laptop_data_cleaned$TypeName, 
+                    method = "pearson")
+
+cor_Ram <- cor(laptop_data_cleaned$price, 
+               laptop_data_cleaned$Ram, 
+              method = "pearson")
+
+cor_Weight <- cor(laptop_data_cleaned$price, 
+                  laptop_data_cleaned$Weight, 
+                  method = "pearson")
+
+cor_TouchScreen <- cor(laptop_data_cleaned$price, 
+                       laptop_data_cleaned$TouchScreen, 
+                       method = "pearson")
+
+cor_Ips <- cor(laptop_data_cleaned$price, 
+               laptop_data_cleaned$Ips, 
+               method = "pearson")
+
+cor_Ppi <- cor(laptop_data_cleaned$price, 
+               laptop_data_cleaned$Ppi, 
+               method = "pearson")
+
+cor_Cpu_brand <- cor(laptop_data_cleaned$price, 
+                     laptop_data_cleaned$Cpu_brand, 
+                     method = "pearson")
+
+cor_HDD <- cor(laptop_data_cleaned$price, 
+               laptop_data_cleaned$HDD, 
+               method = "pearson")
+
+cor_SSD <- cor(laptop_data_cleaned$price, 
+               laptop_data_cleaned$SSD, 
+               method = "pearson") 
+
+cor_Gpu_brand <- cor(laptop_data_cleaned$price, 
+                     laptop_data_cleaned$Gpu_brand, 
+                     method = "pearson")
+
+cor_Os <- cor(laptop_data_cleaned$price, 
+              laptop_data_cleaned$Os, 
+              method = "pearson")
+
+cor_Storage_space <- cor(laptop_data_cleaned$Price,
+                         laptop_data_cleaned$Storage_space,
+                         method = "person")
+
+
 
 ## Split training and testing data sets
 # Fix random numbers by setting the seed 
@@ -52,14 +322,25 @@ laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
 train_data <- training(laptop_split)
 test_data  <- testing(laptop_split)
 
+
+# Create model
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ ., data = train_data)
-
-
-
 tidy(laptop_fit)
+# R Square
 glance(laptop_fit)$adj.r.squared 
+AIC(laptop_fit$fit)
+
+
+  
+ggplot(data = laptop_fit_aug) +
+  geom_point(aes(x = .fitted, y = .resid))
+
+
+
+
+
 
 ```
 
