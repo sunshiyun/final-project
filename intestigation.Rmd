@@ -11,17 +11,16 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
-
-
-```{r load-lib, message = FALSE}
 library(tidyverse)
 library(tidymodels)
 library(openintro)
 library(readr)
 laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
 glimpse(laptop_data_cleaned)
+```
 
+
+```{r load-lib, message = FALSE}
 ## PART1 >>> Data pre-processing
 # Test the number of NA in data set
 colSums(is.na(laptop_data_cleaned))
@@ -86,9 +85,9 @@ ggplot(data = laptop_data_cleaned,
 laptop_data_cleaned %>%
   ggplot(
        mapping = aes(
-         x = RAM, 
+         x = Ram, 
          y = Price,
-         group_by = as.factor(RAM)
+         group_by = as.factor(Ram)
          )) + 
   geom_boxplot(lwd = 0.5,
                outlier.shape = 6,
@@ -259,57 +258,59 @@ ggplot(data = laptop_data_cleaned,
   
 # Correlation-test
 # Person correlation coefficient (linear relationship between continuous variables)
-cor_Company <- cor(laptop_data_cleaned$price, 
+cor_Company <- cor(laptop_data_cleaned$Price, 
                    laptop_data_cleaned$Company, 
                    method = "pearson")
 
-cor_TypeName <- cor(laptop_data_cleaned$price, 
+cor_TypeName <- cor(laptop_data_cleaned$Price, 
                     laptop_data_cleaned$TypeName, 
                     method = "pearson")
 
-cor_Ram <- cor(laptop_data_cleaned$price, 
+cor_Ram <- cor(laptop_data_cleaned$Price, 
                laptop_data_cleaned$Ram, 
               method = "pearson")
 
-cor_Weight <- cor(laptop_data_cleaned$price, 
+cor_Weight <- cor(laptop_data_cleaned$Price, 
                   laptop_data_cleaned$Weight, 
                   method = "pearson")
 
-cor_TouchScreen <- cor(laptop_data_cleaned$price, 
+cor_TouchScreen <- cor(laptop_data_cleaned$Price, 
                        laptop_data_cleaned$TouchScreen, 
                        method = "pearson")
 
-cor_Ips <- cor(laptop_data_cleaned$price, 
+cor_Ips <- cor(laptop_data_cleaned$Price, 
                laptop_data_cleaned$Ips, 
                method = "pearson")
 
-cor_Ppi <- cor(laptop_data_cleaned$price, 
+cor_Ppi <- cor(laptop_data_cleaned$Price, 
                laptop_data_cleaned$Ppi, 
                method = "pearson")
 
-cor_Cpu_brand <- cor(laptop_data_cleaned$price, 
+cor_Cpu_brand <- cor(laptop_data_cleaned$Price, 
                      laptop_data_cleaned$Cpu_brand, 
                      method = "pearson")
 
-cor_HDD <- cor(laptop_data_cleaned$price, 
+cor_HDD <- cor(laptop_data_cleaned$Price, 
                laptop_data_cleaned$HDD, 
                method = "pearson")
 
-cor_SSD <- cor(laptop_data_cleaned$price, 
+cor_SSD <- cor(laptop_data_cleaned$Price, 
                laptop_data_cleaned$SSD, 
                method = "pearson") 
 
-cor_Gpu_brand <- cor(laptop_data_cleaned$price, 
+cor_Gpu_brand <- cor(laptop_data_cleaned$Price, 
                      laptop_data_cleaned$Gpu_brand, 
                      method = "pearson")
 
-cor_Os <- cor(laptop_data_cleaned$price, 
+cor_Os <- cor(laptop_data_cleaned$Price, 
               laptop_data_cleaned$Os, 
               method = "pearson")
 
 cor_Storage_space <- cor(laptop_data_cleaned$Price,
                          laptop_data_cleaned$Storage_space,
                          method = "person")
+
+
 
 
 
