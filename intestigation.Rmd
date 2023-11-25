@@ -40,7 +40,34 @@ laptop_data_cleaned %>%
 laptop_data_cleaned %>%
   count(Os)
 # Combine variables with few data
+# Company
+laptop_data_cleaned <- laptop_data_cleaned %>%
+  mutate(
+    Company = case_when(
+      Company == 'Acer' ~ 'Acer',
+      Company == 'Asus' ~ 'Asus',
+      Company %in% c('Apple', 'Fujitsu', 'Google', 'Huawei', 'LG', 'Microsoft', 'Razer', 'Samsung', 'Xiaomi') ~ 'Others',
+      Company == 'Dell' ~ 'Dell',
+      Company == 'HP' ~ 'HP',
+      Company == 'Lenovo' ~ 'Lenovo',
+      Company == 'MSI' ~ 'MSI',
+      Company == 'Toshiba' ~ 'Toshiba',
+      TRUE ~ as.character(Company)
+    )
+  )
 
+# TypeName
+laptop_data_cleaned <- laptop_data_cleaned %>%
+  mutate(
+    TypeName = case_when(
+      TypeName == '2 in 1 Convertible' ~ '2 in 1 Convertible',
+      TypeName == 'Gaming' ~ 'Gaming',
+      TypeName %in% c('Netbook', 'Workstation') ~ 'Others',
+      TypeName == 'Notebook' ~ 'Notebook',
+      TypeName == 'Ultrabook' ~ 'Ultrabook',
+      TRUE ~ as.character(Company)
+    )
+  )
 # Change type of character data by factor them
 laptop_data_cleaned <- laptop_data_cleaned %>% 
   mutate(Company = as.factor(Company),
@@ -327,14 +354,14 @@ test_data  <- testing(laptop_split)
 # Create model
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(Price ~ ., data = train_data)
+  fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
 tidy(laptop_fit)
 # R Square
 glance(laptop_fit)$adj.r.squared 
+# AIC test
 AIC(laptop_fit$fit)
-
-
-  
+# Visualization
+laptop_fit_aug <- augment(laptop_fit$fit)
 ggplot(data = laptop_fit_aug) +
   geom_point(aes(x = .fitted, y = .resid))
 
