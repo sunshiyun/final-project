@@ -303,9 +303,19 @@ glance(laptop_fit)$adj.r.squared
 # AIC test
 AIC(laptop_fit$fit)
 # Visualization
+
+#initial model
 laptop_fit_aug <- augment(laptop_fit$fit)
-ggplot(data = laptop_fit_aug) +
-  geom_point(aes(x = .fitted, y = .resid))
+   ggplot(data = laptop_fit_aug) +
+   geom_point(aes(x = .fitted, y = .resid))
+   
+# Final model
+laptop_fit_aug <-  augment(laptop_fit$fit) 
+ggplot(data = laptop_fit_aug,
+       mapping = aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "red", linewidth = 0.8) + 
+  labs(x = "Predicted Price", y = "Residuals")
 
 
 
