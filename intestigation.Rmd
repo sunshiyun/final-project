@@ -293,29 +293,43 @@ train_data <- training(laptop_split)
 test_data  <- testing(laptop_split)
 
 
-# Create model
+# Initial model
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
+  fit(Price ~ ., data = train_data)
 tidy(laptop_fit)
 # R Square
 glance(laptop_fit)$adj.r.squared 
 # AIC test
 AIC(laptop_fit$fit)
 # Visualization
-
-#initial model
 laptop_fit_aug <- augment(laptop_fit$fit)
-   ggplot(data = laptop_fit_aug) +
-   geom_point(aes(x = .fitted, y = .resid))
-   
-# Final model
-laptop_fit_aug <-  augment(laptop_fit$fit) 
 ggplot(data = laptop_fit_aug,
        mapping = aes(x = .fitted, y = .resid)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "red", linewidth = 0.8) + 
-  labs(x = "Predicted Price", y = "Residuals")
+  labs(x = "Predicted Price", 
+       y = "Residuals",
+       title = 'Initial Model')
+
+   
+# Final model
+laptop_fit_final <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
+tidy(laptop_fit_final)
+# R Square
+glance(laptop_fit_final)$adj.r.squared 
+# AIC test
+AIC(laptop_fit_final$fit)
+laptop_fit_final_aug <-  augment(laptop_fit_final$fit) 
+ggplot(data = laptop_fit_final_aug,
+       mapping = aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "red", linewidth = 0.8) + 
+  labs(x = "Predicted Price",
+       y = "Residuals",
+       title = 'Final Model')
 
 
 
