@@ -21,6 +21,8 @@ glimpse(laptop_data_cleaned)
 
 
 ```{r load-lib, message = FALSE}
+laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
+glimpse(laptop_data_cleaned)
 ## PART1 >>> Data pre-processing
 # Test the number of NA in data set
 colSums(is.na(laptop_data_cleaned))
@@ -46,7 +48,8 @@ laptop_data_cleaned <- laptop_data_cleaned %>%
     Company = case_when(
       Company == 'Acer' ~ 'Acer',
       Company == 'Asus' ~ 'Asus',
-      Company %in% c('Apple', 'Fujitsu', 'Google', 'Huawei', 'LG', 'Microsoft', 'Razer', 'Samsung', 'Xiaomi') ~ 'Others',
+      Company == 'Apple' ~ 'Apple', 
+      Company %in% c('Fujitsu', 'Google', 'Huawei', 'LG', 'Microsoft', 'Razer', 'Samsung', 'Xiaomi') ~ 'Others',
       Company == 'Dell' ~ 'Dell',
       Company == 'HP' ~ 'HP',
       Company == 'Lenovo' ~ 'Lenovo',
@@ -56,25 +59,15 @@ laptop_data_cleaned <- laptop_data_cleaned %>%
     )
   )
 
-# TypeName
-laptop_data_cleaned <- laptop_data_cleaned %>%
-  mutate(
-    TypeName = case_when(
-      TypeName == '2 in 1 Convertible' ~ '2 in 1 Convertible',
-      TypeName == 'Gaming' ~ 'Gaming',
-      TypeName %in% c('Netbook', 'Workstation') ~ 'Others',
-      TypeName == 'Notebook' ~ 'Notebook',
-      TypeName == 'Ultrabook' ~ 'Ultrabook',
-      TRUE ~ as.character(Company)
-    )
-  )
 # Change type of character data by factor them
 laptop_data_cleaned <- laptop_data_cleaned %>% 
   mutate(Company = as.factor(Company),
          TypeName = as.factor(TypeName),
          Cpu_brand = as.factor(Cpu_brand),
          Gpu_brand = as.factor(Gpu_brand),
-         Os = as.factor(Os)
+         Os = as.factor(Os),
+         TouchScreen = as.factor(TouchScreen),
+         Ips = as.factor(Ips)
          )
 
 
@@ -236,23 +229,6 @@ laptop_data_cleaned %>%
   ) +
   theme_bw()
 
-# Storage_space
-laptop_data_cleaned %>% 
-  ggplot(
-       mapping = aes(
-         x = Storage_space,
-         y = Price, 
-         group_by = as.factor(Storage_space)
-       ))+
-  geom_boxplot(lwd = 0.5,
-               outlier.shape = 6,  
-               outlier.colour = "red")+
-  labs(
-    x = "storage_space",
-    y = 'Price',
-    title = "Price vs. storage_space")
-  theme_bw()
-
 # Gpu_brand
 ggplot(data = laptop_data_cleaned, 
        mapping = aes(y = Price, 
@@ -282,7 +258,6 @@ ggplot(data = laptop_data_cleaned,
   theme_bw()
 
 
-
 ## Split training and testing data sets
 # Fix random numbers by setting the seed 
 set.seed(1365)
@@ -291,6 +266,31 @@ laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
 # Create data frames for the two sets:
 train_data <- training(laptop_split)
 test_data  <- testing(laptop_split)
+
+# Create 5 folds for cross-validation
+set.seed(345)
+laptop_folds <- vfold_cv(train_data, v = 5)
+# Dummy variable
+laptop_recipe <- recipe(Price ~ ., data = laptop_data_cleaned) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_rm(Storage_space)
+# Build model
+laptop_mod <- linear_reg() %>%
+  set_engine("lm")
+# Create workflow
+laptop_workflow <- workflow() %>%
+  add_recipe(laptop_recipe) %>%
+  add_model(laptop_mod)
+# Cross-validation
+set.seed(456)
+laptop_fit_rs <- laptop_workflow %>%
+  fit_resamples(laptop_folds)
+laptop_fit_rs
+# Print in a table
+collect_metrics(laptop_fit_rs)
+
+
+
 
 
 # Initial model
@@ -312,7 +312,36 @@ ggplot(data = laptop_fit_aug,
        y = "Residuals",
        title = 'Initial Model')
 
+
+
+
+
+
+# Create 5 folds for cross-validation in final model 
+set.seed(345)
+laptop_final_folds <- vfold_cv(train_data, v = 5)
+# Dummy variable
+laptop_final_recipe <- recipe(Price ~ ., data = laptop_data_cleaned) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_rm(HDD, Storage_space, Ips)
+# Build model
+laptop_final_mod <- linear_reg() %>%
+  set_engine("lm")
+# Create workflow
+laptop_final_workflow <- workflow() %>%
+  add_recipe(laptop_final_recipe) %>%
+  add_model(laptop_final_mod)
+# Cross-validation
+set.seed(456)
+laptop_final_fit_rs <- laptop_final_workflow %>%
+  fit_resamples(laptop_final_folds)
+laptop_final_fit_rs
+# Print in a table
+collect_metrics(laptop_final_fit_rs)
    
+
+
+
 # Final model
 laptop_fit_final <- linear_reg() %>%
   set_engine("lm") %>%
@@ -333,8 +362,15 @@ ggplot(data = laptop_fit_final_aug,
 
 
 
-
-
+## Predict testing data
+laptop_pred <- predict(laptop_fit_final, 
+                       test_data) %>%
+  bind_cols(test_data %>% select(Price))
+laptop_pred
+# R-square test
+glance(lp_fit)$adj.r.squared
+# AIC test
+AIC(lp_fit$fit)
 
 ```
 
