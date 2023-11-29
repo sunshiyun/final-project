@@ -296,7 +296,7 @@ collect_metrics(laptop_fit_rs)
 # Initial model
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
-  fit(Price ~ ., data = train_data)
+  fit(Price ~ . - Storage_space, data = train_data)
 tidy(laptop_fit)
 # R Square
 glance(laptop_fit)$adj.r.squared 
