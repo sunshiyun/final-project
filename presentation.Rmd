@@ -1,8 +1,7 @@
 ---
-title: "Presentation title"
-subtitle: "Presentation subtitle (if any)"
-author: "Team name <br> Names of team members"
-institute: "University of Edinburgh"
+title: "Laptop price predition"
+author: "Group 42 <br> Shiyun Sun, Yunfei Gao, Yunxiang Gao, Zhenyu She, Haoran Jiang"
+institute: "University of Edinburgh"    
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
@@ -53,31 +52,131 @@ style_xaringan(
 
 class: center, middle
 
-## A statement of the overall goal / research question
+## Goal:Predit the price of a computer based on its configuration
 
 ---
 
 class: inverse, center, middle
 
-# Section title
+# Data pre-processing
 
 ---
 
-# Hello World
+# Data pre-processing
+```{r pre-processing}
+# PART1 >>> Data pre-processing
+laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
+# Test the number of NA in data set
+colSums(is.na(laptop_data_cleaned))
+```
+---
 
-- Click the `Knit` button to compile your presentation
+# Data pre-processing
+```{r pre-processing-2}
+# Keep the data for sum of HDD and SSD greater than 128
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Storage_space = HDD+SSD)
+laptop_data_cleaned <- filter(laptop_data_cleaned, Storage_space >= 128)
+glimpse(laptop_data_cleaned)
+```
 
-- Make sure to commit and push all resulting files to your GitHub repo
+---
+
+class: inverse, center, middle
+
+# Visualization
+
+---
+
+# Visualization
+```{r 1, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/company.jpg")
+```
+
+---
+
+# Visualization
+```{r 2, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/typename.jpg")
+```
+
+---
+
+# Visualization
+```{r 3, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/ram.jpg")
+```
+
+---
+
+# Visualization
+```{r 4, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/weight.jpg")
+```
+
+---
+
+# Visualization
+```{r 5, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/touchscreen.jpg")
+```
+
+---
+
+# Visualization
+```{r 6, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/ips.jpg")
+```
+
+---
+
+# Visualization
+```{r 7, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/ppi.jpg")
+```
+
+---
+
+# Visualization
+```{r 8, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/cpu.jpg")
+```
+
+---
+
+# Visualization
+```{r 9, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/hdd.jpg")
+```
+
+---
+
+# Visualization
+```{r 10, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/gpu.jpg")
+```
+
+---
+
+# Visualization
+```{r 11, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/os.jpg")
+```
+
+---
+
+class: inverse, middle, center
+# Split data set and Cross-validation
 
 ---
 
 class: inverse, middle, center
 
-# Using xaringan
+# Model building
 
 ---
 
-# xaringan
+# Model building
 
 - The presentation is created using the `xaringan` package
 
