@@ -187,18 +187,78 @@ class: inverse, middle, center
 
 ---
 
-# Model building
+# Initial model
 
-- The presentation is created using the `xaringan` package
 
-- Use `---` to separate slides and `--` for incremental builds
+```r
+set.seed(1365)
+laptop_split &lt;- initial_split(laptop_data_cleaned, prop = 0.80)
+train_data &lt;- training(laptop_split)
+laptop_fit &lt;- linear_reg() %&gt;%
+  set_engine("lm") %&gt;%
+  fit(Price ~ . - Storage_space, data = train_data)
+tidy(laptop_fit)
+```
 
---
-
-- Like this
+```
+## # A tibble: 36 × 5
+##    term           estimate std.error statistic     p.value
+##    &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+##  1 (Intercept)      9.67      0.0873   111.    0          
+##  2 CompanyApple     0.299     0.0921     3.25  0.00121    
+##  3 CompanyAsus      0.102     0.0423     2.42  0.0158     
+##  4 CompanyDell      0.172     0.0387     4.45  0.00000982 
+##  5 CompanyFujitsu  -0.0214    0.149     -0.143 0.886      
+##  6 CompanyGoogle    0.490     0.187      2.62  0.00896    
+##  7 CompanyHP        0.192     0.0375     5.12  0.000000375
+##  8 CompanyHuawei    0.144     0.255      0.566 0.572      
+##  9 CompanyLenovo    0.105     0.0369     2.85  0.00446    
+## 10 CompanyLG        0.479     0.184      2.60  0.00948    
+## # ℹ 26 more rows
+```
 
 ---
 
+# Initial model graph
+
+&lt;img src="img/initial.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Final model
+
+
+```r
+laptop_fit_final &lt;- linear_reg() %&gt;%
+  set_engine("lm") %&gt;%
+  fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
+tidy(laptop_fit_final)
+```
+
+```
+## # A tibble: 34 × 5
+##    term           estimate std.error statistic     p.value
+##    &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+##  1 (Intercept)      9.67      0.0870   111.    0          
+##  2 CompanyApple     0.307     0.0918     3.34  0.000869   
+##  3 CompanyAsus      0.0929    0.0416     2.23  0.0258     
+##  4 CompanyDell      0.165     0.0381     4.33  0.0000163  
+##  5 CompanyFujitsu  -0.0279    0.149     -0.187 0.852      
+##  6 CompanyGoogle    0.484     0.187      2.59  0.00978    
+##  7 CompanyHP        0.189     0.0374     5.05  0.000000531
+##  8 CompanyHuawei    0.152     0.254      0.598 0.550      
+##  9 CompanyLenovo    0.106     0.0369     2.87  0.00427    
+## 10 CompanyLG        0.485     0.184      2.64  0.00844    
+## # ℹ 24 more rows
+```
+
+---
+
+# Final model graph
+
+&lt;img src="img/final.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
 # Layouts
 
 You can use plain text

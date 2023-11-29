@@ -176,18 +176,46 @@ class: inverse, middle, center
 
 ---
 
-# Model building
+# Initial model
 
-- The presentation is created using the `xaringan` package
-
-- Use `---` to separate slides and `--` for incremental builds
-
---
-
-- Like this
+```{r model}
+set.seed(1365)
+laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
+train_data <- training(laptop_split)
+laptop_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ . - Storage_space, data = train_data)
+tidy(laptop_fit)
+```
 
 ---
 
+# Initial model graph
+
+```{r 12, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/initial.jpg")
+```
+
+---
+
+# Final model
+
+```{r model2}
+laptop_fit_final <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
+tidy(laptop_fit_final)
+```
+
+---
+
+# Final model graph
+
+```{r 13, echo = FALSE, out.width = "80%", fig.align = "center"}
+include_graphics("img/final.jpg")
+```
+
+---
 # Layouts
 
 You can use plain text
