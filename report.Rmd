@@ -71,8 +71,4 @@ Make sure to hide your code with  `echo = FALSE` unless the point you are trying
 
 
 
-## References
-
-List any references here. You should, at a minimum, list your data source.
-
 

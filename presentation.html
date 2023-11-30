@@ -173,6 +173,107 @@ class: inverse, middle, center
 # Split data set and Cross-validation
 
 ---
+# Split data sets
+train set(comprising 80% )
+
+test set(comprising 20%)
+
+
+set.seed(1365)
+
+laptop_split &lt;- initial_split(laptop_data_cleaned, prop = 0.80)
+
+train_data &lt;- training(laptop_split)
+
+test_data  &lt;- testing(laptop_split)
+
+
+---
+
+
+# Preparation of cross-validation
+
+Before we apply cross-validation, we need to build a workflow:
+
+laptop_recipe &lt;- recipe(Price ~ ., data = train_data) %&gt;%
+  
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;%
+  
+  step_rm(Storage_space)
+
+laptop_mod &lt;- linear_reg() %&gt;%
+  
+  set_engine("lm")
+
+laptop_workflow &lt;- workflow() %&gt;%
+  
+  add_recipe(laptop_recipe) %&gt;%
+  
+  add_model(laptop_mod)
+
+
+
+
+---
+
+
+
+
+
+# Cross-validation
+
+Now we have everything we need.
+
+
+set.seed(345)
+
+laptop_folds &lt;- vfold_cv(train_data, v = 5)
+
+set.seed(456)
+
+laptop_fit_rs &lt;- laptop_workflow %&gt;%
+  
+  fit_resamples(laptop_folds)
+
+laptop_fit_rs
+
+
+
+
+---
+
+
+
+# Is our model reliable?
+
+collect_metrics(laptop_fit_rs)
+
+summary(train_data$Price)
+
+According to mean RSQ(0.791), it shows that 79.1% variability of the response variable (Price) can be explained by our model on train_data.
+By comparing mean.RMSE(0.266) and Max.Price- Min.Price(12.691-9.135=3.556), it shows that the error of our method of predicting Price is totally acceptable(0.266/3.3556=7.93%).
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="img/jimm1.jpg" alt="Image credit: mean_RMSE&amp;amp;RSQ" width="55%" /&gt;
+&lt;p class="caption"&gt;Image credit: mean_RMSE&amp;RSQ&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="img/jimmy2.jpg" alt="Image credit: Summary Price" width="55%" /&gt;
+&lt;p class="caption"&gt;Image credit: Summary Price&lt;/p&gt;
+&lt;/div&gt;
+
+
+
+---
+
+
+
+## END
+Now, because of the good performance of our model under 5-fold cross-validation, we feel confident applying our model of predicting Price to the whole data set.
+
+
+
+---
+
 
 class: inverse, middle, center
 

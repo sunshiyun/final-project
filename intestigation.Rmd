@@ -298,10 +298,6 @@ laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ . - Storage_space, data = train_data)
 tidy(laptop_fit)
-# R Square
-glance(laptop_fit)$adj.r.squared 
-# AIC test
-AIC(laptop_fit$fit)
 # Visualization
 laptop_fit_aug <- augment(laptop_fit$fit)
 ggplot(data = laptop_fit_aug,
@@ -347,10 +343,6 @@ laptop_fit_final <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
 tidy(laptop_fit_final)
-# R Square
-glance(laptop_fit_final)$adj.r.squared 
-# AIC test
-AIC(laptop_fit_final$fit)
 laptop_fit_final_aug <-  augment(laptop_fit_final$fit) 
 ggplot(data = laptop_fit_final_aug,
        mapping = aes(x = .fitted, y = .resid)) +
@@ -360,6 +352,15 @@ ggplot(data = laptop_fit_final_aug,
        y = "Residuals",
        title = 'Final Model')
 
+# test table
+test <- c(glance(laptop_fit)$adj.r.squared,
+  AIC(laptop_fit$fit),
+  glance(laptop_fit_final)$adj.r.squared,
+  AIC(laptop_fit_final$fit))
+table <- matrix(test, nrow = 2, ncol = 2,
+                       dimnames = list(test = c("R-square", "AIC"), 
+                                       model = c("initial", "final")))
+print(table)
 
 
 ## Predict testing data
@@ -371,6 +372,7 @@ laptop_pred
 glance(lp_fit)$adj.r.squared
 # AIC test
 AIC(lp_fit$fit)
+
 
 ```
 
