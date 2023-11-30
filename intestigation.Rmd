@@ -65,10 +65,12 @@ laptop_data_cleaned <- laptop_data_cleaned %>%
          TypeName = as.factor(TypeName),
          Cpu_brand = as.factor(Cpu_brand),
          Gpu_brand = as.factor(Gpu_brand),
-         Os = as.factor(Os),
-         TouchScreen = as.factor(TouchScreen),
-         Ips = as.factor(Ips)
+         Os = as.factor(Os)
          )
+laptop_data_factor <- laptop_data_cleaned %>%
+  mutate(Ips_factor = as.factor(Ips),
+         TouchScreen_factor = as.factor(TouchScreen))
+         
 
 
 
@@ -132,12 +134,12 @@ ggplot(data = laptop_data_cleaned,
   theme_bw()
 
 # TouchScreen
-laptop_data_cleaned %>%
+laptop_data_factor %>%
   ggplot(
        mapping = aes(
-         x = TouchScreen, 
+         x = TouchScreen_factor, 
          y = Price,
-         group_by = as.factor(TouchScreen)
+         group_by = as.factor(TouchScreen_factor)
          )) + 
   geom_boxplot(lwd = 0.5,
                outlier.shape = 6,
@@ -150,12 +152,12 @@ laptop_data_cleaned %>%
   theme_bw()
 
 # Ips
-laptop_data_cleaned %>%
+laptop_data_factor %>%
   ggplot(
        mapping = aes(
-         x = Ips, 
+         x = Ips_factor, 
          y = Price,
-         group_by = as.factor(Ips)
+         group_by = as.factor(Ips_factor)
          )) + 
   geom_boxplot(lwd = 0.5,
                outlier.shape = 6,
@@ -165,7 +167,7 @@ laptop_data_cleaned %>%
     y = "Price",
     title = "Price vs. Ips"
   ) +
-  theme_bw()
+  theme_bw() 
 
 #Ppi
 ggplot(data = laptop_data_cleaned,
@@ -271,7 +273,7 @@ test_data  <- testing(laptop_split)
 set.seed(345)
 laptop_folds <- vfold_cv(train_data, v = 5)
 # Dummy variable
-laptop_recipe <- recipe(Price ~ ., data = laptop_data_cleaned) %>%
+laptop_recipe <- recipe(Price ~ ., data = train_data) %>%
   step_dummy(all_nominal(), -all_outcomes()) %>%
   step_rm(Storage_space)
 # Build model
@@ -298,6 +300,10 @@ laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ . - Storage_space, data = train_data)
 tidy(laptop_fit)
+# R Square
+glance(laptop_fit)$adj.r.squared 
+# AIC test
+AIC(laptop_fit$fit)
 # Visualization
 laptop_fit_aug <- augment(laptop_fit$fit)
 ggplot(data = laptop_fit_aug,
@@ -317,9 +323,9 @@ ggplot(data = laptop_fit_aug,
 set.seed(345)
 laptop_final_folds <- vfold_cv(train_data, v = 5)
 # Dummy variable
-laptop_final_recipe <- recipe(Price ~ ., data = laptop_data_cleaned) %>%
+laptop_final_recipe <- recipe(Price ~ ., data = train_data) %>%
   step_dummy(all_nominal(), -all_outcomes()) %>%
-  step_rm(HDD, Storage_space, Ips)
+  step_rm(Storage_space,HDD,Ips)
 # Build model
 laptop_final_mod <- linear_reg() %>%
   set_engine("lm")
@@ -334,7 +340,7 @@ laptop_final_fit_rs <- laptop_final_workflow %>%
 laptop_final_fit_rs
 # Print in a table
 collect_metrics(laptop_final_fit_rs)
-   
+summary(train_data$Price)   
 
 
 
@@ -343,6 +349,10 @@ laptop_fit_final <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
 tidy(laptop_fit_final)
+# R Square
+glance(laptop_fit_final)$adj.r.squared 
+# AIC test
+AIC(laptop_fit_final$fit)
 laptop_fit_final_aug <-  augment(laptop_fit_final$fit) 
 ggplot(data = laptop_fit_final_aug,
        mapping = aes(x = .fitted, y = .resid)) +
@@ -352,13 +362,13 @@ ggplot(data = laptop_fit_final_aug,
        y = "Residuals",
        title = 'Final Model')
 
-# test table
+# Test
 test <- c(glance(laptop_fit)$adj.r.squared,
   AIC(laptop_fit$fit),
   glance(laptop_fit_final)$adj.r.squared,
   AIC(laptop_fit_final$fit))
 table <- matrix(test, nrow = 2, ncol = 2,
-                       dimnames = list(test = c("R-square", "AIC"), 
+                       dimnames = list(test = c("R-square","AIC"), 
                                        model = c("initial", "final")))
 print(table)
 
@@ -368,11 +378,10 @@ laptop_pred <- predict(laptop_fit_final,
                        test_data) %>%
   bind_cols(test_data %>% select(Price))
 laptop_pred
-# R-square test
-glance(lp_fit)$adj.r.squared
-# AIC test
-AIC(lp_fit$fit)
-
+# Root Mean Square
+rmse(laptop_pred, truth = Price, estimate = .pred)
+# R Square 
+rsq(laptop_pred, truth = Price, estimate = .pred)
 
 ```
 

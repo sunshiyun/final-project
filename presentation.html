@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Laptop price predition</title>
+    <title>Laptop price prediction</title>
     <meta charset="utf-8" />
     <meta name="author" content="Group 42   Shiyun Sun, Yunfei Gao, Yunxiang Gao, Zhenyu She, Haoran Jiang" />
     <meta name="date" content="2023-11-30" />
@@ -13,7 +13,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# Laptop price predition
+# Laptop price prediction
 ]
 .author[
 ### Group 42 <br> Shiyun Sun, Yunfei Gao, Yunxiang Gao, Zhenyu She, Haoran Jiang
@@ -41,7 +41,7 @@ class: center, middle, inverse, title-slide
 
 class: center, middle
 
-## Goal:Predit the price of a computer based on its configuration
+## Goal:Predict the price of a computer based on its configuration
 
 ---
 
@@ -83,6 +83,9 @@ colSums(is.na(laptop_data_cleaned))
 ##          Os 
 ##           0
 ```
+
+
+
 ---
 
 # Data pre-processing
@@ -106,6 +109,21 @@ colSums(is.na(laptop_data_cleaned))
 ## $ Storage_space &lt;dbl&gt; 128, 256, 512, 256, 500, 512, 256, 500, 500, 256, 256, 2…
 ```
 
+---
+# Change type of character data by factor them
+
+```r
+laptop_data_cleaned &lt;- laptop_data_cleaned %&gt;% 
+  mutate(Company = as.factor(Company),
+         TypeName = as.factor(TypeName),
+         Cpu_brand = as.factor(Cpu_brand),
+         Gpu_brand = as.factor(Gpu_brand),
+         Os = as.factor(Os)
+         )
+laptop_data_factor &lt;- laptop_data_cleaned %&gt;%
+  mutate(Ips_factor = as.factor(Ips),
+         TouchScreen_factor = as.factor(TouchScreen))
+```
 ---
 
 class: inverse, center, middle
@@ -174,11 +192,13 @@ class: inverse, middle, center
 
 ---
 # Split data sets
+
 train set(comprising 80% )
 
 test set(comprising 20%)
 
 
+```r
 set.seed(1365)
 
 laptop_split &lt;- initial_split(laptop_data_cleaned, prop = 0.80)
@@ -186,7 +206,7 @@ laptop_split &lt;- initial_split(laptop_data_cleaned, prop = 0.80)
 train_data &lt;- training(laptop_split)
 
 test_data  &lt;- testing(laptop_split)
-
+```
 
 ---
 
@@ -195,6 +215,8 @@ test_data  &lt;- testing(laptop_split)
 
 Before we apply cross-validation, we need to build a workflow:
 
+
+```r
 laptop_recipe &lt;- recipe(Price ~ ., data = train_data) %&gt;%
   
   step_dummy(all_nominal(), -all_outcomes()) %&gt;%
@@ -210,7 +232,7 @@ laptop_workflow &lt;- workflow() %&gt;%
   add_recipe(laptop_recipe) %&gt;%
   
   add_model(laptop_mod)
-
+```
 
 
 
@@ -225,6 +247,7 @@ laptop_workflow &lt;- workflow() %&gt;%
 Now we have everything we need.
 
 
+```r
 set.seed(345)
 
 laptop_folds &lt;- vfold_cv(train_data, v = 5)
@@ -234,9 +257,45 @@ set.seed(456)
 laptop_fit_rs &lt;- laptop_workflow %&gt;%
   
   fit_resamples(laptop_folds)
+```
 
+```
+## → A | warning: prediction from rank-deficient fit; consider predict(., rankdeficient="NA")
+```
+
+```
+## 
+There were issues with some computations   A: x1
+
+There were issues with some computations   A: x3
+
+There were issues with some computations   A: x4
+
+There were issues with some computations   A: x5
+```
+
+```r
 laptop_fit_rs
+```
 
+```
+## # Resampling results
+## # 5-fold cross-validation 
+## # A tibble: 5 × 4
+##   splits            id    .metrics         .notes          
+##   &lt;list&gt;            &lt;chr&gt; &lt;list&gt;           &lt;list&gt;          
+## 1 &lt;split [757/190]&gt; Fold1 &lt;tibble [2 × 4]&gt; &lt;tibble [1 × 3]&gt;
+## 2 &lt;split [757/190]&gt; Fold2 &lt;tibble [2 × 4]&gt; &lt;tibble [1 × 3]&gt;
+## 3 &lt;split [758/189]&gt; Fold3 &lt;tibble [2 × 4]&gt; &lt;tibble [1 × 3]&gt;
+## 4 &lt;split [758/189]&gt; Fold4 &lt;tibble [2 × 4]&gt; &lt;tibble [1 × 3]&gt;
+## 5 &lt;split [758/189]&gt; Fold5 &lt;tibble [2 × 4]&gt; &lt;tibble [1 × 3]&gt;
+## 
+## There were issues with some computations:
+## 
+##   - Warning(s) x5: prediction from rank-deficient fit; consider predict(., rankdefic...
+## 
+## Run `show_notes(.Last.tune.result)` for more information.
+```
 
 
 
@@ -247,6 +306,8 @@ laptop_fit_rs
 # Is our model reliable?
 
 collect_metrics(laptop_fit_rs)
+
+
 
 summary(train_data$Price)
 
@@ -267,8 +328,8 @@ By comparing mean.RMSE(0.266) and Max.Price- Min.Price(12.691-9.135=3.556), it s
 
 
 
-## END
-Now, because of the good performance of our model under 5-fold cross-validation, we feel confident applying our model of predicting Price to the whole data set.
+## END for cross validation
+- Now, because of the good performance of our model under 5-fold cross-validation, we feel confident applying our model of predicting Price to the whole data set.
 
 
 
@@ -285,9 +346,6 @@ class: inverse, middle, center
 
 
 ```r
-set.seed(1365)
-laptop_split &lt;- initial_split(laptop_data_cleaned, prop = 0.80)
-train_data &lt;- training(laptop_split)
 laptop_fit &lt;- linear_reg() %&gt;%
   set_engine("lm") %&gt;%
   fit(Price ~ . - Storage_space, data = train_data)
@@ -313,9 +371,160 @@ tidy(laptop_fit)
 
 ---
 
+#Initial model
+
+```r
+glance(laptop_fit)$adj.r.squared
+```
+
+```
+## [1] 0.8042408
+```
+
+```r
+AIC(laptop_fit$fit)
+```
+
+```
+## [1] 101.2828
+```
+
+---
+
 # Initial model graph
 
 &lt;img src="img/initial.jpg" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+# Drop HDD
+
+
+```r
+laptop_fit_HDD &lt;- linear_reg() %&gt;%
+  set_engine("lm") %&gt;%
+  fit(Price ~ . - Storage_space - HDD, data = train_data)
+```
+## R-Square test 
+
+```r
+glance(laptop_fit_HDD)$adj.r.squared
+```
+
+```
+## [1] 0.8042967
+```
+## AIC test
+
+```r
+AIC(laptop_fit_HDD$fit)
+```
+
+```
+## [1] 100.0502
+```
+
+
+---
+
+
+
+# Drop Weight
+
+
+```r
+laptop_fit_Weight &lt;- linear_reg() %&gt;%
+  set_engine("lm") %&gt;%
+  fit(Price ~ . - Storage_space - HDD - Weight, data = train_data)
+```
+
+## R-Square test 
+
+```r
+glance(laptop_fit_Weight)$adj.r.squared 
+```
+
+```
+## [1] 0.802714
+```
+
+## AIC test
+
+```r
+AIC(laptop_fit_Weight$fit)
+```
+
+```
+## [1] 106.7143
+```
+
+
+
+---
+
+
+
+# Drop Os
+
+
+```r
+laptop_fit_Os &lt;- linear_reg() %&gt;%
+  set_engine("lm") %&gt;%
+  fit(Price ~ . - Storage_space - HDD - Os, data = train_data)
+```
+
+## R-Square test 
+
+```r
+glance(laptop_fit_Os)$adj.r.squared 
+```
+
+```
+## [1] 0.7848889
+```
+
+## AIC test
+
+```r
+AIC(laptop_fit_Os$fit)
+```
+
+```
+## [1] 188.63
+```
+
+
+
+---
+# Drop Ips
+
+
+```r
+laptop_fit_Ips &lt;- linear_reg() %&gt;%
+  set_engine("lm") %&gt;%
+  fit(Price ~ . - Storage_space - HDD - Ips, data = train_data)
+```
+
+## R-Square test 
+
+```r
+glance(laptop_fit_Ips)$adj.r.squared 
+```
+
+```
+## [1] 0.8043248
+```
+
+## AIC test
+
+```r
+AIC(laptop_fit_Ips$fit)
+```
+
+```
+## [1] 98.95073
+```
+
+
 
 ---
 
@@ -374,6 +583,90 @@ print(table)
 ##   R-square   0.8042408  0.8043248
 ##   AIC      101.2828232 98.9507274
 ```
+
+---
+
+class: inverse, center, middle
+#Testing
+
+---
+
+#Testing
+
+```r
+# Predict testing data
+laptop_pred &lt;- predict(laptop_fit_final, 
+                       test_data) %&gt;%
+  bind_cols(test_data %&gt;% select(Price))
+```
+
+```
+## Warning in predict.lm(object = object$fit, newdata = new_data, type =
+## "response", : prediction from rank-deficient fit; consider predict(.,
+## rankdeficient="NA")
+```
+
+```r
+laptop_pred
+```
+
+```
+## # A tibble: 237 × 2
+##    .pred Price
+##    &lt;dbl&gt; &lt;dbl&gt;
+##  1  10.1  9.82
+##  2  10.4 10.2 
+##  3  10.9 10.6 
+##  4  10.1 10.2 
+##  5  11.1 10.9 
+##  6  10.8 10.7 
+##  7  10.8 10.8 
+##  8  10.2 10.1 
+##  9  10.6 10.2 
+## 10  11.0 10.9 
+## # ℹ 227 more rows
+```
+
+---
+# Testing result
+
+```r
+# Root Mean Square
+rmse(laptop_pred, truth = Price, estimate = .pred)
+```
+
+```
+## # A tibble: 1 × 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rmse    standard       0.262
+```
+
+```r
+# R Square 
+rsq(laptop_pred, truth = Price, estimate = .pred)
+```
+
+```
+## # A tibble: 1 × 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rsq     standard       0.811
+```
+
+---
+
+class: inverse, center, middle
+#Summary
+
+---
+
+# Problem on filter variables (AIC &amp;R-square)
+- Unexpected negative effect
+- Limited improvement on model
+
+# Future work
+- Potential better choices
 
 ---
 

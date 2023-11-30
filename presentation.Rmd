@@ -1,5 +1,5 @@
 ---
-title: "Laptop price predition"
+title: "Laptop price prediction"
 author: "Group 42 <br> Shiyun Sun, Yunfei Gao, Yunxiang Gao, Zhenyu She, Haoran Jiang"
 institute: "University of Edinburgh"    
 date: "`r Sys.Date()`"
@@ -52,7 +52,7 @@ style_xaringan(
 
 class: center, middle
 
-## Goal:Predit the price of a computer based on its configuration
+## Goal:Predict the price of a computer based on its configuration
 
 ---
 
@@ -76,6 +76,9 @@ laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
 # Test the number of NA in data set
 colSums(is.na(laptop_data_cleaned))
 ```
+
+
+
 ---
 
 # Data pre-processing
@@ -87,6 +90,20 @@ laptop_data_cleaned <- filter(laptop_data_cleaned, Storage_space >= 128)
 glimpse(laptop_data_cleaned)
 ```
 
+---
+# Change type of character data by factor them
+```{r ?????}
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Company = as.factor(Company),
+         TypeName = as.factor(TypeName),
+         Cpu_brand = as.factor(Cpu_brand),
+         Gpu_brand = as.factor(Gpu_brand),
+         Os = as.factor(Os)
+         )
+laptop_data_factor <- laptop_data_cleaned %>%
+  mutate(Ips_factor = as.factor(Ips),
+         TouchScreen_factor = as.factor(TouchScreen))
+```
 ---
 
 class: inverse, center, middle
@@ -177,11 +194,12 @@ class: inverse, middle, center
 
 ---
 # Split data sets
+
 train set(comprising 80% )
 
 test set(comprising 20%)
 
-
+```{r ???}
 set.seed(1365)
 
 laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
@@ -189,7 +207,7 @@ laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
 train_data <- training(laptop_split)
 
 test_data  <- testing(laptop_split)
-
+```
 
 ---
 
@@ -197,6 +215,8 @@ test_data  <- testing(laptop_split)
 # Preparation of cross-validation
 
 Before we apply cross-validation, we need to build a workflow:
+
+```{r ????}
 
 laptop_recipe <- recipe(Price ~ ., data = train_data) %>%
   
@@ -213,7 +233,7 @@ laptop_workflow <- workflow() %>%
   add_recipe(laptop_recipe) %>%
   
   add_model(laptop_mod)
-
+```
 
 
 
@@ -227,7 +247,7 @@ laptop_workflow <- workflow() %>%
 
 Now we have everything we need.
 
-
+```{r ??}
 set.seed(345)
 
 laptop_folds <- vfold_cv(train_data, v = 5)
@@ -239,7 +259,7 @@ laptop_fit_rs <- laptop_workflow %>%
   fit_resamples(laptop_folds)
 
 laptop_fit_rs
-
+```
 
 
 
@@ -250,6 +270,8 @@ laptop_fit_rs
 # Is our model reliable?
 
 collect_metrics(laptop_fit_rs)
+
+
 
 summary(train_data$Price)
 
@@ -268,8 +290,8 @@ include_graphics("img/jimmy2.jpg")
 
 
 
-## END
-Now, because of the good performance of our model under 5-fold cross-validation, we feel confident applying our model of predicting Price to the whole data set.
+## END for cross validation
+- Now, because of the good performance of our model under 5-fold cross-validation, we feel confident applying our model of predicting Price to the whole data set.
 
 
 
@@ -285,13 +307,18 @@ class: inverse, middle, center
 # Initial model
 
 ```{r model}
-set.seed(1365)
-laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
-train_data <- training(laptop_split)
 laptop_fit <- linear_reg() %>%
   set_engine("lm") %>%
   fit(Price ~ . - Storage_space, data = train_data)
 tidy(laptop_fit)
+```
+
+---
+
+#Initial model
+```{r ????????}
+glance(laptop_fit)$adj.r.squared
+AIC(laptop_fit$fit)
 ```
 
 ---
@@ -301,6 +328,93 @@ tidy(laptop_fit)
 ```{r 12, echo = FALSE, out.width = "80%", fig.align = "center"}
 include_graphics("img/initial.jpg")
 ```
+
+---
+# Drop HDD
+
+```{r dropHDD}
+laptop_fit_HDD <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ . - Storage_space - HDD, data = train_data)
+```
+## R-Square test 
+```{r dropHDD1}
+glance(laptop_fit_HDD)$adj.r.squared
+```
+## AIC test
+```{r dropHDD2} 
+AIC(laptop_fit_HDD$fit)
+```
+
+
+---
+
+
+
+# Drop Weight
+
+```{r dropWeight}
+laptop_fit_Weight <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ . - Storage_space - HDD - Weight, data = train_data)
+```
+
+## R-Square test 
+```{r dropWeight1}
+glance(laptop_fit_Weight)$adj.r.squared 
+```
+
+## AIC test
+```{r dropWeight2}
+AIC(laptop_fit_Weight$fit)
+```
+
+
+
+---
+
+
+
+# Drop Os
+
+```{r dropOs}
+laptop_fit_Os <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ . - Storage_space - HDD - Os, data = train_data)
+```
+
+## R-Square test 
+```{r dropOs1}
+glance(laptop_fit_Os)$adj.r.squared 
+```
+
+## AIC test
+```{r dropOs2}
+AIC(laptop_fit_Os$fit)
+```
+
+
+
+---
+# Drop Ips
+
+```{r dropIps1}
+laptop_fit_Ips <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ . - Storage_space - HDD - Ips, data = train_data)
+```
+
+## R-Square test 
+```{r dropIps2}
+glance(laptop_fit_Ips)$adj.r.squared 
+```
+
+## AIC test
+```{r dropIps3}
+AIC(laptop_fit_Ips$fit)
+```
+
+
 
 ---
 
@@ -335,6 +449,45 @@ table <- matrix(test, nrow = 2, ncol = 2,
                                        model = c("initial", "final")))
 print(table)
 ```
+
+---
+
+class: inverse, center, middle
+#Testing
+
+---
+
+#Testing
+```{r ?}
+# Predict testing data
+laptop_pred <- predict(laptop_fit_final, 
+                       test_data) %>%
+  bind_cols(test_data %>% select(Price))
+laptop_pred
+```
+
+---
+# Testing result
+```{r ??????}
+# Root Mean Square
+rmse(laptop_pred, truth = Price, estimate = .pred)
+# R Square 
+rsq(laptop_pred, truth = Price, estimate = .pred)
+```
+
+---
+
+class: inverse, center, middle
+#Summary
+
+---
+
+# Problem on filter variables (AIC &R-square)
+- Unexpected negative effect
+- Limited improvement on model
+
+# Future work
+- Potential better choices
 
 ---
 
