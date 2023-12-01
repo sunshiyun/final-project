@@ -63,12 +63,7 @@ class: inverse, center, middle
 ---
 
 # Data pre-processing
-```{r pre-processing/1}
-# PART1 >>> Data pre-processing
-```
-
 ```{r pre-processing/2, message=FALSE}
-# PART1 >>> Data pre-processing
 laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
 ```
 
@@ -119,77 +114,243 @@ class: inverse, center, middle
 # Visualization
 
 ```{r 1, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/company.jpg")
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Company)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Company",
+    title = "Price vs. Comapny"
+  ) +
+  theme_bw()
 ```
 
+
+
 ---
+
+
 
 # Visualization
 ```{r 2, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/typename.jpg")
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price,
+                     x = TypeName)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "TypeName",
+    title = "Price vs. TypeName"
+  ) +
+  theme_bw()
 ```
+
 
 ---
 
+
 # Visualization
 ```{r 3, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/ram.jpg")
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = Ram, 
+         y = Price,
+         group_by = as.factor(Ram)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "RAM",
+    y = "Price",
+    title = "Price vs. RAM"
+  ) +
+  theme_bw()
 ```
 
 ---
 
 # Visualization
 ```{r 4, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/weight.jpg")
+ggplot(data = laptop_data_cleaned,
+       mapping = aes(
+         x = Weight, 
+         y = Price)) + 
+  geom_point() + 
+  geom_smooth(method = 'gam',formula = y ~ s(x, bs = "cs"),se = FALSE) + 
+  labs(x = "Weight", 
+       y = "Price", 
+       title = "Price vs weight") +
+  theme_bw()
 ```
 
 ---
 
 # Visualization
 ```{r 5, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/touchscreen.jpg")
+laptop_data_factor %>%
+  ggplot(
+       mapping = aes(
+         x = TouchScreen_factor, 
+         y = Price,
+         group_by = as.factor(TouchScreen_factor)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "TouchScreen",
+    y = "Price",
+    title = "Price vs. TouchScreen"
+  ) +
+  theme_bw()
 ```
 
 ---
 
 # Visualization
 ```{r 6, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/ips.jpg")
+laptop_data_factor %>%
+  ggplot(
+       mapping = aes(
+         x = Ips_factor, 
+         y = Price,
+         group_by = as.factor(Ips_factor)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "Ips",
+    y = "Price",
+    title = "Price vs. Ips"
+  ) +
+  theme_bw() 
 ```
 
 ---
 
 # Visualization
 ```{r 7, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/ppi.jpg")
+ggplot(data = laptop_data_cleaned,
+       mapping = aes(
+         x = Ppi, 
+         y = Price)) + 
+  geom_point() + 
+  geom_smooth(method = 'gam',formula = y ~ s(x, bs = "cs"),se = FALSE) + 
+  labs(
+    x = "Ppi", 
+    y = "Price", 
+    title = "Price vs. Ppi") +
+  theme_bw()
 ```
 
 ---
 
 # Visualization
 ```{r 8, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/cpu.jpg")
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Cpu_brand)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Cpu_brand",
+    title = "Price vs. Cpu_brand"
+  ) +
+  theme_bw()
 ```
 
 ---
 
 # Visualization
 ```{r 9, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/hdd.jpg")
+laptop_data_cleaned %>% 
+  ggplot(
+       mapping = aes(
+         x = HDD,
+         y = Price, 
+         group_by = as.factor(HDD)
+       ))+
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")+
+  labs(
+    x = "HDD",
+    y = 'Price',
+    title = "Price vs. HDD")
+  theme_bw()
 ```
 
 ---
 
+
+# Visualization
+```{r 99, echo = FALSE, out.width = "80%", fig.align = "center"}
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = SSD, 
+         y = Price,
+         group_by = as.factor(SSD)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red") +
+  labs(
+    x = "SSD",
+    y = "Price",
+    title = "Price vs. SSD"
+  ) +
+  theme_bw()
+```
+
+
+
+---
+
+
+
 # Visualization
 ```{r 10, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/gpu.jpg")
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Gpu_brand)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Gpu_brand",
+    title = "Price vs. Gpu_brand"
+  ) +
+  theme_bw()
 ```
 
 ---
 
 # Visualization
 ```{r 11, echo = FALSE, out.width = "80%", fig.align = "center"}
-include_graphics("img/os.jpg")
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Os)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Os",
+    title = "Price vs. Os"
+  ) +
+  theme_bw()
 ```
 
 ---
@@ -274,20 +435,17 @@ laptop_fit_rs
 
 # Is our model reliable?
 
-collect_metrics(laptop_fit_rs)
 
-
-
-summary(train_data$Price)
-
-According to mean RSQ(0.791), it shows that 79.1% variability of the response variable (Price) can be explained by our model on train_data.
-By comparing mean.RMSE(0.266) and Max.Price- Min.Price(12.691-9.135=3.556), it shows that the error of our method of predicting Price is totally acceptable(0.266/3.3556=7.93%).
+According to mean RSQ(0.792), it shows that 79.2% variability of the response variable (Price) can be explained by our model on train_data.
+By comparing mean.RMSE(0.259) and Max.Price- Min.Price(12.691-9.506=3.185), it shows that the error of our method of predicting Price is totally acceptable(0.259/3.185=8.13%).
 ```{r rmse, echo = FALSE, out.width = "55%", fig.align = "center", fig.cap = "Image credit: mean_RMSE&RSQ"}
-include_graphics("img/jimm1.jpg")
+collect_metrics(laptop_fit_rs)
 ```
 
+
+
 ```{r price, echo = FALSE, out.width = "55%", fig.align = "center", fig.cap = "Image credit: Summary Price"}
-include_graphics("img/jimmy2.jpg")
+summary(train_data$Price)
 ```
 
 
