@@ -31,10 +31,8 @@ library(tidyverse)
 
 ## Research Question
 
-Describe your research question here. Include why this question might be of interest. 
-
-
-
+My team members and I have chosen a dataset related to computers, which is particularly attractive for us as we've recently purchased new computers. As widely known, the computer market has always been chaotic, with significant price variations among different configurations. Even identical configurations can have vastly different prices across different brands. When people are interested in a product, the majority tend to first notice its price, as it is quite prominent.In fact, we don't know the exact time when the dataset was created, but it seems to be quite old. However, this doesn't deter our eagerness to understand how computer prices were at that time. After a series of discussions, we decided to explore our questions with a focus on prices. Of course, there are also some special cases where individuals are loyal to a specific brand or pursue extremely high configurations, ignoring the price. Therefore, to ensure fairness in our price assessments, it is imperative to consider all variables and brands. Seemingly insignificant changes can often be crucial in influencing the price, making this aspect highly important. Consequently, we ultimately decided to build a linear regression model to predict computer prices and evaluate the model's performance through cross-validation.Throughout this process, we carried out a series of operations, including data cleaning, preprocessing, feature engineering, model training, and evaluation, culminating in the presentation of results in an ideal state.
+[229]
 
 
 ## Data
@@ -45,6 +43,10 @@ See http://libraryguides.vu.edu.au/c.php?g=386501&p=4347840 for guidance on prop
 If you got your data off the web, make sure to state the retrieval date.
 
 
+This is a data set about the price of the computer as well as various aspects of the configuration and performance, the variables include the brand of the laptop, the type of laptop, the RAM (Random Access Memory), the weight, the Ppi (Pixels per Inch), the brand of the CPU and the GPU, the Ips (In-Plane Switching, which is advantageous because the screen doesn't distort the picture and affects the colours of the picture), whether or not the laptop is a touchscreen, if the laptop is using an HDD (Hard Disk Drive) or an SSD (Solid State Drive), and the Os (Operating System).
+[103]
+
+Kushwaha, Gyan Prakash. “Laptop Price Prediction Cleaned Dataset.” Kaggle, 15 June 2023, www.kaggle.com/datasets/gyanprakashkushwaha/laptop-price-prediction-cleaned-dataset/data. 
 
 
 
@@ -71,4 +73,8 @@ Make sure to hide your code with  `echo = FALSE` unless the point you are trying
 
 
 
+## References
 
+List any references here. You should, at a minimum, list your data source.
+
+Kushwaha, Gyan Prakash. “Laptop Price Prediction Cleaned Dataset.” Kaggle, 15 June 2023, www.kaggle.com/datasets/gyanprakashkushwaha/laptop-price-prediction-cleaned-dataset/data. 
