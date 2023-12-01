@@ -1,6 +1,6 @@
 ---
-title: "Project title"
-author: "by Team-Name: User1, User2, User3, User4 & User5"
+title: "Laptop price prediction"
+author: "Group 42 <br> Shiyun Sun, Yunfei Gao, Yunxiang Gao, Zhenyu She, Haoran Jiang"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -12,69 +12,417 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load-lib, include = FALSE}
 library(tidyverse)
-# Add any other libraries here
-
-
-
+library(tidyr)
+library(tidymodels)
+library(openintro)
+library(readr)
 ```
 
 
 ```{r load-data, include=FALSE}
-# load your data here and any pre-processing/cleaning 
-#  that you need for your report.
-
-
-
-
-```
+laptop_data_cleaned <- read_csv("laptop_data_cleaned.csv")
+# Keep the data for storage space greater than 128
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Storage_space = HDD+SSD)
+laptop_data_cleaned <- filter(laptop_data_cleaned, Storage_space >= 128)
+# Combine company name with few data
+laptop_data_cleaned <- laptop_data_cleaned %>%
+  mutate(
+    Company = case_when(
+      Company == 'Acer' ~ 'Acer',
+      Company == 'Asus' ~ 'Asus',
+      Company == 'Apple' ~ 'Apple', 
+      Company %in% c('Fujitsu', 'Google', 'Huawei', 'LG', 'Microsoft', 'Razer', 'Samsung', 'Xiaomi') ~ 'Others',
+      Company == 'Dell' ~ 'Dell',
+      Company == 'HP' ~ 'HP',
+      Company == 'Lenovo' ~ 'Lenovo',
+      Company == 'MSI' ~ 'MSI',
+      Company == 'Toshiba' ~ 'Toshiba',
+      TRUE ~ as.character(Company)
+    )
+  )
+# Change type of character data by factor them
+laptop_data_cleaned <- laptop_data_cleaned %>% 
+  mutate(Company = as.factor(Company),
+         TypeName = as.factor(TypeName),
+         Cpu_brand = as.factor(Cpu_brand),
+         Gpu_brand = as.factor(Gpu_brand),
+         Os = as.factor(Os)
+         )
+laptop_data_factor <- laptop_data_cleaned %>%
+  mutate(Ips_factor = as.factor(Ips),
+         TouchScreen_factor = as.factor(TouchScreen))
+# Split training and testing data sets
+set.seed(1365)
+laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
+train_data <- training(laptop_split)
+test_data  <- testing(laptop_split)
+``` 
 
 
 ## Research Question
 
 My team members and I have chosen a dataset related to computers, which is particularly attractive for us as we've recently purchased new computers. As widely known, the computer market has always been chaotic, with significant price variations among different configurations. Even identical configurations can have vastly different prices across different brands. When people are interested in a product, the majority tend to first notice its price, as it is quite prominent.In fact, we don't know the exact time when the dataset was created, but it seems to be quite old. However, this doesn't deter our eagerness to understand how computer prices were at that time. After a series of discussions, we decided to explore our questions with a focus on prices. Of course, there are also some special cases where individuals are loyal to a specific brand or pursue extremely high configurations, ignoring the price. Therefore, to ensure fairness in our price assessments, it is imperative to consider all variables and brands. Seemingly insignificant changes can often be crucial in influencing the price, making this aspect highly important. Consequently, we ultimately decided to build a linear regression model to predict computer prices and evaluate the model's performance through cross-validation.Throughout this process, we carried out a series of operations, including data cleaning, preprocessing, feature engineering, model training, and evaluation, culminating in the presentation of results in an ideal state.
-[229]
+
+
+
 
 
 ## Data
 
-Briefly describe your dataset here - include a description of the key variables you will be investigating. 
-Include a citation for your data. 
-See http://libraryguides.vu.edu.au/c.php?g=386501&p=4347840 for guidance on proper citation for datasets. 
-If you got your data off the web, make sure to state the retrieval date.
-
-
 This is a data set about the price of the computer as well as various aspects of the configuration and performance, the variables include the brand of the laptop, the type of laptop, the RAM (Random Access Memory), the weight, the Ppi (Pixels per Inch), the brand of the CPU and the GPU, the Ips (In-Plane Switching, which is advantageous because the screen doesn't distort the picture and affects the colours of the picture), whether or not the laptop is a touchscreen, if the laptop is using an HDD (Hard Disk Drive) or an SSD (Solid State Drive), and the Os (Operating System).
-[103]
 
-Kushwaha, Gyan Prakash. “Laptop Price Prediction Cleaned Dataset.” Kaggle, 15 June 2023, www.kaggle.com/datasets/gyanprakashkushwaha/laptop-price-prediction-cleaned-dataset/data. 
+Reference: Kushwaha, Gyan Prakash. “Laptop Price Prediction Cleaned Dataset.” Kaggle, 15 June 2023, www.kaggle.com/datasets/gyanprakashkushwaha/laptop-price-prediction-cleaned-dataset/data. 
+
 
 
 
 
 ## Findings
 
-The write-up of your project and findings go here. 
-
-Think of this as the text of your presentation with some extra detail to cover what there was not time to discuss in the presentation. This might include any assumptions you made when doing your analysis, any limitations of the work you have done or any ideas you have for future work. Feel free to split this section into subsections to make it easier to read. 
-
-The length should be roughly 1,500 words. 
-If you want to use a word count addin, you can install this by copying and pasting the following into RStudio:
-
-`devtools::install_github("benmarwick/wordcountaddin", type = "source", dependencies = TRUE)`
-
-You will then need to restart RStudio. Once you have done that, select the text you want to count the words of, go to Addins, and select the `Word count` addin.
-This addin counts words using two different algorithms, but the results should be similar and as long as you're in the ballpark of 1,500 words, you're good! 
-The addin will ignore code chunks and only count the words in prose. If you don't want to use the addin you can always copy and paste the text into Microsoft Word to do a Word Count!
-
-You can also load your data here and present any analysis results / plots.
-Make sure to hide your code with  `echo = FALSE` unless the point you are trying to make is about the code itself, in which case you should show your code.
+In our project, we broke down the full process into 5 parts, which included data pre-processing, visualization, splitting data set and cross-validation, model building and filtering variables, test model with testing data set.
 
 
 
+The first part is the pre-processing of the data. When we downloaded the data from the website and import it, we named it 'laptop_data'. To remove some laptops that are not meaningful in real life, we added the two variables HDD and SSD together as the computer's storage space.
+
+Since we thought that computers with less than 128 storage space would not make much sense to participate in this model, these computers were filtered out and the remaining data was saved as a new dataset called 'laptop_data_cleaned'. 
+
+At this point, we noticed that variable ‘Company’ seemed to have a very small number of occurrences in the dataset, so to understand how many times each of the different values appeared in the different character type variables, we used the count function and found that some of the Company and TypeName values appeared very infrequently.
+
+In order to avoid these very small number of variables only appearing in the test set and not participating in fitting process, we changed 'Fujitsu', 'Google', 'Huawei', 'LG', 'Microsoft', 'Razer', 'Samsung', ' Xiaomi' in 'Company' into 'Others' to ensure that the amount of data here will be sufficient to randomly assigned to the training set. Although 'Apple' in Company and 'Mac' in Os are also very small, it is a large company in the computer industry, we have not combined them with others. The data volumes of 'Netbook' and Workstation' in 'TypeName' were also small, but since we found the price difference between these two laptop types is big, they were not merged either. 
+
+In addition, we turned all the variables with the output in type of character into factors, which are dummy variables, as character variables are not able to participate in the modeling process. 
+
+
+
+The second part is the visualization. In this part, we have plotted all the variables and Price separately. 
+
+```{r 1, echo=FALSE}
+# Company
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Company)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Company",
+    title = "Price vs. Comapny"
+  ) +
+  theme_bw()
+```
+In the graph of Price and Company, we can see each company have different average price, so we suggest that company affect price, so we think that both are related.
+
+```{r 2, echo=FALSE}
+#TypeName
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price,
+                     x = TypeName)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "TypeName",
+    title = "Price vs. TypeName"
+  ) +
+  theme_bw()
+```
+In the graph of Price and TypeName, similar to company, they also corresponding to different price, so we think they are also related. 
+
+```{r 3, echo=FALSE}
+# RAM
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = Ram, 
+         y = Price,
+         group_by = as.factor(Ram)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "RAM",
+    y = "Price",
+    title = "Price vs. RAM"
+  ) +
+  theme_bw()
+```
+In the graph of Price and RAM, Higher RAM means higher Price, so it can be shown that they are correlated. 
+
+```{r 4, echo=FALSE}
+# Weight
+ggplot(data = laptop_data_cleaned,
+       mapping = aes(
+         x = Weight, 
+         y = Price)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE) + 
+  labs(x = "Weight", 
+       y = "Price", 
+       title = "Price vs weight") +
+  theme_bw()
+```
+For the image of Price and Weight, we have used scatterplot, as Weight is a variable of continuous data. In the graph, we have drawn a curve that best matches the trend, and it shows that they have a linear relationship. But we still need to figure out whether they are related in following steps. 
+
+```{r 5, echo=FALSE}
+# TouchScreen
+laptop_data_factor %>%
+  ggplot(
+       mapping = aes(
+         x = TouchScreen_factor, 
+         y = Price,
+         group_by = as.factor(TouchScreen_factor)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "TouchScreen",
+    y = "Price",
+    title = "Price vs. TouchScreen"
+  ) +
+  theme_bw()
+```
+
+```{r 6, echo=FALSE}
+# Ips
+laptop_data_factor %>%
+  ggplot(
+       mapping = aes(
+         x = Ips_factor, 
+         y = Price,
+         group_by = as.factor(Ips_factor)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,
+               outlier.colour = "red") +
+  labs(
+    x = "Ips",
+    y = "Price",
+    title = "Price vs. Ips"
+  ) +
+  theme_bw() 
+```
+Both Ips and TouchScreen are binary categorical variables,and both average prices are different in have and don't have, so they will affect the price.
+
+```{r 7, echo=FALSE}
+#Ppi
+ggplot(data = laptop_data_cleaned,
+       mapping = aes(
+         x = Ppi, 
+         y = Price)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE) + 
+  labs(
+    x = "Ppi", 
+    y = "Price", 
+    title = "Price vs. Ppi") +
+  theme_bw()
+```
+In the image of Price and Ppi, the curve shows an overall upward trend, with Price following Ppi as it rises, and they are correlated. 
+
+```{r 8, echo=FALSE}
+# Cpu_brand
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Cpu_brand)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Cpu_brand",
+    title = "Price vs. Cpu_brand"
+  ) +
+  theme_bw()
+```
+
+```{r 11, echo=FALSE}
+# Gpu_brand
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Gpu_brand)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Gpu_brand",
+    title = "Price vs. Gpu_brand"
+  ) +
+  theme_bw()
+```
+In the graphs for both Gpu brand and CPU brand, we can see that the average price of each brand is different, so we can see those brands affect the price, so we believe both of them are related to price.
+
+```{r 9, echo=FALSE}
+# SSD
+laptop_data_cleaned %>%
+  ggplot(
+       mapping = aes(
+         x = SSD, 
+         y = Price,
+         group_by = as.factor(SSD)
+         )) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red") +
+  labs(
+    x = "SSD",
+    y = "Price",
+    title = "Price vs. SSD"
+  ) +
+  theme_bw()
+```
+
+```{r 10, echo=FALSE}
+# HDD
+laptop_data_cleaned %>% 
+  ggplot(
+       mapping = aes(
+         x = HDD,
+         y = Price, 
+         group_by = as.factor(HDD)
+       ))+
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")+
+  labs(
+    x = "HDD",
+    y = 'Price',
+    title = "Price vs. HDD")
+  theme_bw()
+```
+In the image of Price and SSD, the trend of mean value shows an upward trend, price increased followed by SSD increase, and they are correlated. In the image of Price and HHD, the figure can show that Price and HDD are not in a linear relationship, and there is not a fixed trend. But since HDD is significantly related to SSD, we need to do more test to check if they are really independent or not. 
+
+```{r 12, echo=FALSE}
+# Os
+ggplot(data = laptop_data_cleaned, 
+       mapping = aes(y = Price, 
+                     x = Os)) + 
+  geom_boxplot(lwd = 0.5,
+               outlier.shape = 6,  
+               outlier.colour = "red")  +  
+  labs(
+    y = "Price",
+    x = "Os",
+    title = "Price vs. Os"
+  ) +
+  theme_bw()
+```
+In the graph of price and Operating system, we can see that the average price of each Os is different, so we can see that Os affects the price, so we think they are related.
+
+
+
+The third part is splitting data set and cross-validation. After finishing EDA,  we want to separate the data into a training set comprising 80% of the original data, and a test set with 20% of the original data to train a model and evaluate its performance.
+```{r 30}
+# Fix random numbers by setting the seed 
+set.seed(1365)
+# Put 80% of the data into the training set 
+laptop_split <- initial_split(laptop_data_cleaned, prop = 0.80)
+# Create data frames for the two sets:
+train_data <- training(laptop_split)
+test_data  <- testing(laptop_split)
+# Create 5 folds for cross-validation
+set.seed(345)
+laptop_folds <- vfold_cv(train_data, v = 5)
+# Dummy variable
+laptop_recipe <- recipe(Price ~ ., data = train_data) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  step_rm(Storage_space)
+# Build model
+laptop_mod <- linear_reg() %>%
+  set_engine("lm")
+# Create workflow
+laptop_workflow <- workflow() %>%
+  add_recipe(laptop_recipe) %>%
+  add_model(laptop_mod)
+# Cross-validation
+set.seed(456)
+laptop_fit_rs <- laptop_workflow %>%
+  fit_resamples(laptop_folds)
+# Print in a table
+collect_metrics(laptop_fit_rs)
+summary(train_data$Price)
+```
+
+Before we built a model, we wanted to use linear regression because “Price” is a numerical variable, and exclude the mutated variable ”storage” to avoid redundancy because we used  HDD and  SSD. Therefore, we built a workflow and applied 5-fold cross-validation on the training data to assess model reliability.
+
+And what we find is  the  rsq is pretty high and the difference  between max price and min price of the original data set is about 3.2, but the rmse is 0.258 which is acceptable for us.
+So we are confident in using this method to build a good model.
+
+
+
+The fourth part is modelling. Since price is a continuous variable, we used a linear regression model. In order to compare it with the final model, we first fitted a model without removing any variables with the training set and measured its R-square and AIC.
+
+The result of the R-square represents the goodness of fit of the regression model, the closer the value is to 1, the better the data fits the predicted results. The AIC (Akaike Information Criterion) value represents how well the model is balanced between goodness of fit and complexity. 
+
+After testing, when dropping HDD and Ips, the value of R-square goes up and AIC goes down, which means that the model's performance becomes better. However, when we drop other variables, the value of R-square goes down, AIC goes up, and the model's performance becomes worse, so our final model contains all variables except Ips and HDD.
+
+```{r 13}
+# Initial model
+laptop_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ . - Storage_space, data = train_data)
+tidy(laptop_fit)
+```
+This is the coefficient of variables in initial model.
+```{r 14}
+# Final model
+laptop_fit_final <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(Price ~ .-HDD -Storage_space -Ips, data = train_data)
+tidy(laptop_fit)
+```
+This is the coefficient of variables in final model.
+
+```{r 16}
+test <- c(glance(laptop_fit)$adj.r.squared,
+  AIC(laptop_fit$fit),
+  glance(laptop_fit_final)$adj.r.squared,
+  AIC(laptop_fit_final$fit))
+table <- matrix(test, nrow = 2, ncol = 2,
+                       dimnames = list(test = c("R-square","AIC"), 
+                                       model = c("initial", "final")))
+table
+```
+We built a table comparing the AIC and R-square of the initial model and the final model. The results show that the final model does have better performance than the initial model, but only by a limited amount.
+```{r 15,echo=FALSE}
+# Initial model
+laptop_fit_aug <- augment(laptop_fit$fit)
+ggplot(data = laptop_fit_aug,
+       mapping = aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "red", linewidth = 0.8) + 
+  labs(x = "Predicted Price", 
+       y = "Residuals",
+       title = 'Initial Model')
+
+# Final model
+laptop_fit_final_aug <-  augment(laptop_fit_final$fit) 
+ggplot(data = laptop_fit_final_aug,
+       mapping = aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, color = "red", linewidth = 0.8) + 
+  labs(x = "Predicted Price",
+       y = "Residuals",
+       title = 'Final Model')
+```
+We use both initial and final model to predict the price for training data set and plot a graph for each of them, where y-axis is residual, and x-axis is the model's predicted price. But surprisingly we found there seems no difference between the graphs.
+
+
+
+Summary:
+IPS is a computer's monitor capability, a computer with IPS will have a higher capability in image display, but as we sifted through the data, we found that removing IPS resulted in a better fit (R-square would become higher and AIC lower), which was not what we expected.
+We removed two negative variables in sifting the data, and the model tended to get better but with limited effect, the rise in R-square and the fall in AIC were not significant, and the .fit against .resit image was not more concentrated towards y=0.
+We believe that there are so many factors that affect the price of computers that a simple linear regression is not a completely accurate predictor of the price, and because we retained too many variables, the model is over fitted.
+
+After learning the corresponding to the program, we would like to make a model that can help the user to choose the appropriate type of computer, we can target different needs of the target group, such as the demand for computer games or only for the office of the special people to do the corresponding recommendations, which is based on the use of the performance variables related to this, after making the model for the different variables according to the functionality of the degree of dependence on the performance of the assignment and selected in this area of cost-effective models, to help the customer to make a choice.
 
 
 ## References
-
-List any references here. You should, at a minimum, list your data source.
 
 Kushwaha, Gyan Prakash. “Laptop Price Prediction Cleaned Dataset.” Kaggle, 15 June 2023, www.kaggle.com/datasets/gyanprakashkushwaha/laptop-price-prediction-cleaned-dataset/data. 
